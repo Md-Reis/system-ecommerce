@@ -70,17 +70,23 @@ ecommerce-flask/
 │
 ├── app.py                 # Aplicação principal
 ├── requirements.txt       # Dependências
-├── README.md             # Documentação
-├── ecommerce.db          # Banco de dados SQLite (criado automaticamente)
-└── templates/            # Templates HTML
-    ├── base.html         # Template base
-    ├── index.html        # Página inicial
-    ├── usuario/          # Templates de usuário
-    ├── anuncio/          # Templates de anúncios
-    ├── compra/           # Templates de compras
-    ├── favorito/         # Templates de favoritos
-    ├── relatorio/        # Templates de relatórios
-    └── categoria/        # Templates de categorias
+├── README.md              # Documentação
+├── ecommerce.db           # Banco de dados SQLite (criado automaticamente)
+└── templates/             # Templates HTML
+    ├── base.html          # Template base
+    ├── index.html         # Página inicial
+    ├── usuario/           # Templates de usuário
+        ├── cadastro.html  # Template castro
+        ├── login.html     # Template login
+    ├── anuncio/           # Templates de anúncios
+        ├── detalhes.html  # Template detalhes
+        ├── listar.html    # Template listar
+        ├── novo.html      # Template novo
+    ├── compra/            # Templates de compras
+    ├── favorito/          # Templates de favoritos
+    ├── relatorio/         # Templates de relatórios
+    └── categoria/         # Templates de categorias
+        ├── categoria.html # Template categoria
 ```
 
 ## Funcionalidades Implementadas
@@ -198,5 +204,6 @@ ecommerce-flask/
 Este projeto é para fins acadêmicos e de aprendizado.
 
 ## Contato
+
 
 Desenvolvido como projeto acadêmico para disciplina de Frameworks para Desenvolvimento de Software.
