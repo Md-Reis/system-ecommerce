@@ -76,7 +76,7 @@ ecommerce-flask/
     ├── base.html          # Template base
     ├── index.html         # Página inicial
     ├── usuario/           # Templates de usuário
-        ├── cadastro.html  # Template castro
+        ├── cadastro.html  # Template cadastro
         ├── login.html     # Template login
     ├── anuncio/           # Templates de anúncios
         ├── detalhes.html  # Template detalhes
@@ -207,3 +207,4 @@ Este projeto é para fins acadêmicos e de aprendizado.
 
 
 Desenvolvido como projeto acadêmico para disciplina de Frameworks para Desenvolvimento de Software.
+
