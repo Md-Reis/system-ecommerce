@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ categoria_nome }} - Anúncios{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Anúncios da categoria: {{ categoria_nome }}</h2>
+    
+    {% if anuncios %}
+        <div class="row">
+            {% for anuncio in anuncios %}
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ anuncio.titulo }}</h5>
+                        <p class="card-text">{{ anuncio.descricao }}</p>
+                        <p class="text-success">R$ {{ "%.2f"|format(anuncio.preco) }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Nenhum anúncio encontrado nesta categoria.
+        </div>
+    {% endif %}
+    
+    <a href="{{ url_for('home') }}" class="btn btn-primary">Voltar</a>
+</div>
+{% endblock %}

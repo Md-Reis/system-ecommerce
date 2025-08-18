@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Criar Anúncio - E-Commerce{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-plus-circle"></i> Criar Novo Anúncio</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="titulo" class="form-label">Título do Anúncio *</label>
+                        <input type="text" class="form-control" id="titulo" name="titulo" required maxlength="200" placeholder="Ex: iPhone 13 Pro 256GB Seminovo">
+                        <div class="form-text">Seja claro e específico no título</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="categoria" class="form-label">Categoria *</label>
+                        <select class="form-select" id="categoria" name="categoria" required>
+                            <option value="">Selecione uma categoria</option>
+                            {% for categoria in categorias %}
+                                <option value="{{ categoria.id_categoria }}">{{ categoria.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição *</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="5" required placeholder="Descreva seu produto detalhadamente: estado de conservação, características, motivo da venda, etc."></textarea>
+                        <div class="form-text">Quanto mais detalhes, melhor! Isso ajuda os compradores a tomar uma decisão.</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="preco" class="form-label">Preço (R$) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="number" class="form-control" id="preco" name="preco" step="0.01" min="0.01" required placeholder="0,00">
+                                </div>
+                                <div class="form-text">Digite apenas números. Ex: 150.50</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="quantidade" class="form-label">Quantidade Disponível *</label>
+                                <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" value="1" required>
+                                <div class="form-text">Quantas unidades você tem para vender?</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Dicas para um bom anúncio:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Use um título claro e específico</li>
+                                <li>Descreva o estado do produto honestamente</li>
+                <li>Mencione se há garantia, acessórios inclusos, etc.</li>
+                                <li>Seja responsivo às perguntas dos interessados</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Publicar Anúncio
+                        </button>
+                        <a href="{{ url_for('meus_anuncios') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Formatação do campo de preço
+    document.getElementById('preco').addEventListener('input', function(e) {
+        let value = e.target.value;
+        if (value < 0) {
+            e.target.value = 0;
+        }
+    });
+    
+    // Contador de caracteres para descrição
+    const descricao = document.getElementById('descricao');
+    const contadorDiv = document.createElement('div');
+    contadorDiv.className = 'form-text text-end';
+    contadorDiv.id = 'contador-descricao';
+    descricao.parentNode.insertBefore(contadorDiv, descricao.nextSibling);
+    
+    function atualizarContador() {
+        const restante = descricao.value.length;
+        document.getElementById('contador-descricao').textContent = restante + ' caracteres';
+    }
+    
+    descricao.addEventListener('input', atualizarContador);
+    atualizarContador(); // Inicializar contador
+</script>
+{% endblock %}

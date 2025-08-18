@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}{{ anuncio.titulo }} - E-Commerce{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-md-8">
+        <!-- Informações do Anúncio -->
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h1 class="h2 mb-0">{{ anuncio.titulo }}</h1>
+                    {% if session.usuario_id and session.usuario_id != anuncio.id_usuario %}
+                        {% if favorito %}
+                            <form method="POST" action="{{ url_for('favoritar_anuncio', id=anuncio.id_anuncio) }}" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm" title="Remover dos favoritos">
+                                    <i class="fas fa-heart"></i> Favorito
+                                </button>
+                            </form>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('favoritar_anuncio', id=anuncio.id_anuncio) }}" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Adicionar aos favoritos">
+                                    <i class="far fa-heart"></i> Favoritar
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <span class="badge bg-secondary mb-2">{{ anuncio.categoria.nome }}</span>
+                        <p class="text-muted mb-3">
+                            <i class="fas fa-calendar"></i> Publicado em {{ anuncio.data_publicacao | datetime('%d/%m/%Y às %H:%M') }}
+                        </p>
+                        
+                        <h3 class="price-tag mb-3">{{ anuncio.preco | currency }}</h3>
+                        
+                        <div class="mb-3">
+                            {% if anuncio.quantidade_disponivel > 0 %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check"></i> {{ anuncio.quantidade_disponivel }} disponível
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-times"></i> Esgotado
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h4>Descrição</h4>
+                    <div class="border p-3 bg-light rounded">
+                        {{ anuncio.descricao | replace('\n', '<br>') | safe }}
+                    </div>
+                </div>
+                
+                <!-- Ações do Anúncio -->
+                {% if session.usuario_id %}
+                    {% if session.usuario_id == anuncio.id_usuario %}
+                        <!-- Proprietário do anúncio -->
+                        <div class="d-flex gap-2 mb-3">
+                            <a href="{{ url_for('editar_anuncio', id=anuncio.id_anuncio) }}" class="btn btn-warning">
+                                <i class="fas fa-edit"></i> Editar Anúncio
+                            </a>
+                            <form method="POST" action="{{ url_for('excluir_anuncio', id=anuncio.id_anuncio) }}" class="d-inline"
+                                  onsubmit="return confirm('Tem certeza que deseja excluir este anúncio?')">
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash"></i> Excluir
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <!-- Outros usuários -->
+                        {% if anuncio.quantidade_disponivel > 0 %}
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5>Comprar este produto</h5>
+                                    <form method="POST" action="{{ url_for('comprar_anuncio', id=anuncio.id_anuncio) }}" class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="quantidade" class="form-label">Quantidade</label>
+                                            <select class="form-select" name="quantidade" id="quantidade" required>
+                                                {% for i in range(1, anuncio.quantidade_disponivel + 1) %}
+                                                    <option value="{{ i }}">{{ i }} unidade{% if i > 1 %}s{% endif %}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-success btn-lg w-100"
+                                                    onclick="return confirm('Confirma a compra deste produto?')">
+                                                <i class="fas fa-shopping-cart"></i> Comprar Agora
+                                            </button>
+                                        </div>
+                                    </form>
+                                    <div class="mt-2">
+                                        <span id="total-compra" class="fw-bold text-success">
+                                            Total: {{ anuncio.preco | currency }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted mt-2 d-block">
+                                        <i class="fas fa-info-circle"></i> Ao clicar em "Comprar Agora", você confirma a compra do produto.
+                                    </small>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> Este produto não está mais disponível.
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                {% else %}
+                    <!-- Usuário não logado -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-sign-in-alt"></i> 
+                        <a href="{{ url_for('login') }}" class="alert-link">Faça login</a> para comprar este produto ou adicionar aos favoritos.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Seção de Perguntas -->
+        <div class="card shadow">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-question-circle"></i> Perguntas e Respostas</h4>
+            </div>
+            <div class="card-body">
+                <!-- Fazer nova pergunta -->
+                {% if session.usuario_id and session.usuario_id != anuncio.id_usuario %}
+                    <form method="POST" action="{{ url_for('fazer_pergunta', id=anuncio.id_anuncio) }}" class="mb-4">
+                        <div class="mb-3">
+                            <label for="pergunta" class="form-label">Faça uma pergunta sobre este produto:</label>
+                            <textarea class="form-control" id="pergunta" name="pergunta" rows="3" 
+                                      placeholder="Digite sua pergunta aqui..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Enviar Pergunta
+                        </button>
+                    </form>
+                    <hr>
+                {% endif %}
+                
+                <!-- Lista de perguntas -->
+                {% if perguntas %}
+                    {% for pergunta in perguntas %}
+                        <div class="mb-4 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong>{{ pergunta.usuario_pergunta.nome }}</strong>
+                                <small class="text-muted">{{ pergunta.data_pergunta | datetime('%d/%m/%Y às %H:%M') }}</small>
+                            </div>
+                            <p class="mb-2">{{ pergunta.texto_pergunta }}</p>
+                            
+                            {% if pergunta.resposta %}
+                                <!-- Resposta existe -->
+                                <div class="bg-light p-3 rounded mt-2">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <strong class="text-success">
+                                            <i class="fas fa-reply"></i> {{ pergunta.resposta.usuario_resposta.nome }}
+                                        </strong>
+                                        <small class="text-muted">{{ pergunta.resposta.data_resposta | datetime('%d/%m/%Y às %H:%M') }}</small>
+                                    </div>
+                                    <p class="mb-0">{{ pergunta.resposta.texto_resposta }}</p>
+                                </div>
+                            {% else %}
+                                <!-- Sem resposta ainda -->
+                                {% if session.usuario_id and session.usuario_id == anuncio.id_usuario %}
+                                    <!-- Proprietário pode responder -->
+                                    <form method="POST" action="{{ url_for('responder_pergunta', id=pergunta.id_pergunta) }}" class="mt-2">
+                                        <div class="mb-2">
+                                            <textarea class="form-control" name="resposta" rows="2" 
+                                                      placeholder="Digite sua resposta..." required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-reply"></i> Responder
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock"></i> Aguardando resposta do vendedor...
+                                    </small>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-comments fa-3x mb-3"></i>
+                        <p>Nenhuma pergunta foi feita ainda.</p>
+                        {% if session.usuario_id and session.usuario_id != anuncio.id_usuario %}
+                            <p>Seja o primeiro a fazer uma pergunta!</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar com informações do vendedor -->
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user"></i> Informações do Vendedor</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                         style="width: 60px; height: 60px; font-size: 24px;">
+                        {{ anuncio.proprietario.nome[0].upper() }}
+                    </div>
+                    <h5 class="mt-2 mb-1">{{ anuncio.proprietario.nome }}</h5>
+                    <small class="text-muted">Membro desde {{ anuncio.proprietario.data_cadastro | datetime('%m/%Y') }}</small>
+                </div>
+                
+                {% if anuncio.proprietario.telefone %}
+                    <p class="mb-2">
+                        <i class="fas fa-phone text-muted me-2"></i>
+                        {{ anuncio.proprietario.telefone }}
+                    </p>
+                {% endif %}
+                
+                {% if anuncio.proprietario.endereco %}
+                    <p class="mb-2">
+                        <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                        {{ anuncio.proprietario.endereco.split(',')[0] }}...
+                    </p>
+                {% endif %}
+                
+                <hr>
+                
+                <div class="d-grid">
+                    {% if session.usuario_id and session.usuario_id != anuncio.id_usuario %}
+                        <button class="btn btn-outline-primary mb-2" disabled>
+                            <i class="fas fa-envelope"></i> Enviar Mensagem
+                            <small class="d-block">Em breve</small>
+                        </button>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('listar_anuncios') }}?usuario={{ anuncio.id_usuario }}" 
+                       class="btn btn-outline-secondary">
+                        <i class="fas fa-list"></i> Ver outros anúncios
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Anúncios similares -->
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-tags"></i> Anúncios Similares</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted text-center">
+                    <i class="fas fa-search"></i><br>
+                    Funcionalidade em desenvolvimento
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mt-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Início</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_anuncios') }}">Anúncios</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_anuncios') }}?categoria={{ anuncio.categoria.id_categoria }}">{{ anuncio.categoria.nome }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ anuncio.titulo[:30] }}{% if anuncio.titulo|length > 30 %}...{% endif %}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Calcular total da compra
+    const quantidadeSelect = document.getElementById('quantidade');
+    if (quantidadeSelect) {
+        const precoUnitario = {{ anuncio.preco | float }};
+        
+        quantidadeSelect.addEventListener('change', function() {
+            const quantidade = parseInt(this.value);
+            const total = quantidade * precoUnitario;
+            
+            // Atualizar exibição do total
+            const totalElement = document.getElementById('total-compra');
+            if (totalElement) {
+                totalElement.textContent = 'Total: R$ ' + total.toFixed(2).replace('.', ',');
+            }
+        });
+    }
+    
+    // Auto-expandir textarea de pergunta
+    const textarea = document.getElementById('pergunta');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+</script>
+{% endblock %}
