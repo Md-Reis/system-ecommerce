@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ categoria_nome }} - Anúncios{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="fas fa-tags"></i> Anúncios da categoria: <span class="fw-bold">{{ categoria_nome }}</span></h2>
+    
+    {% if anuncios %}
+        <div class="row">
+            {% for anuncio in anuncios %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm card-hover">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ anuncio.titulo }}</h5>
+                        <p class="card-text text-muted">{{ anuncio.descricao[:100] }}{% if anuncio.descricao|length > 100 %}...{% endif %}</p>
+                        
+                        <div class="mb-2">
+                            <span class="badge bg-secondary">{{ categoria_nome }}</span>
+                            <span class="badge bg-info">{{ anuncio.quantidade_disponivel }} disponível</span>
+                        </div>
+                        
+                        <h6 class="text-success fw-bold">R$ {{ "%.2f"|format(anuncio.preco) }}</h6>
+                    </div>
+                    
+                    <div class="card-footer bg-transparent d-flex justify-content-between">
+                        <a href="{{ url_for('detalhes_anuncio', id=anuncio.id_anuncio) }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye"></i> Ver Detalhes
+                        </a>
+                        
+                        {% if is_logged_in() and session.usuario_id != anuncio.id_usuario and anuncio.quantidade_disponivel > 0 %}
+                            <form method="POST" action="{{ url_for('comprar_anuncio', id=anuncio.id_anuncio) }}" class="d-inline">
+                                <input type="hidden" name="quantidade" value="1">
+                                <button type="submit" class="btn btn-success btn-sm"
+                                        onclick="return confirm('Confirma a compra deste produto?')">
+                                    <i class="fas fa-shopping-cart"></i> Comprar
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle"></i> Nenhum anúncio encontrado nesta categoria.
+        </div>
+    {% endif %}
+    
+    <div class="mt-3">
+        <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>
+{% endblock %}

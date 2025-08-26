@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Erro Interno do Servidor{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center min-vh-100">
+    <div class="text-center">
+        <h1 class="display-1 text-danger fw-bold">500</h1>
+        <p class="lead text-muted mb-2">Ocorreu um erro inesperado no servidor.</p>
+        <p class="text-muted mb-4">Tente novamente mais tarde ou volte para a página inicial.</p>
+        <a href="{{ url_for('home') }}" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-home"></i> Voltar para a Página Inicial
+        </a>
+    </div>
+</div>
+{% endblock %}

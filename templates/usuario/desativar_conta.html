@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Desativar Conta - E-commerce{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Desativar Conta
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-warning"></i> Atenção!
+                        </h5>
+                        <p>
+                            Você está prestes a <strong>desativar sua conta</strong>. 
+                            Esta ação terá os seguintes efeitos:
+                        </p>
+                        <hr>
+                        <ul class="mb-0">
+                            <li>Sua conta será <strong>desativada</strong> e você não poderá mais fazer login</li>
+                            <li>Todos os seus <strong>anúncios serão desativados</strong> automaticamente</li>
+                            <li>Você não receberá mais notificações ou mensagens</li>
+                            <li>Seus dados permanecerão no sistema para fins de histórico de transações</li>
+                            <li>Para reativar, será necessário entrar em contato com o suporte</li>
+                        </ul>
+                    </div>
+
+                    <div class="card bg-light mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-user"></i> Informações da Conta
+                            </h6>
+                            <p class="card-text">
+                                <strong>Nome:</strong> {{ usuario.nome }}<br>
+                                <strong>Email:</strong> {{ usuario.email }}<br>
+                                <strong>Membro desde:</strong> {{ usuario.data_cadastro|datetime('%d/%m/%Y') }}<br>
+                                <strong>Anúncios ativos:</strong> 
+                                <span class="badge badge-primary">{{ usuario.anuncios|selectattr('ativo')|list|length }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('desativar_conta') }}" id="desativarForm">
+                        <div class="form-group">
+                            <label for="senha_confirmacao" class="font-weight-bold">
+                                <i class="fas fa-lock"></i> Confirme sua senha para continuar
+                            </label>
+                            <input type="password" class="form-control" id="senha_confirmacao" 
+                                   name="senha_confirmacao" required
+                                   placeholder="Digite sua senha atual para confirmar">
+                            <small class="form-text text-muted">
+                                Por segurança, confirme sua senha antes de desativar a conta
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="confirmarDesativacao" 
+                                       name="confirmar_desativacao" required>
+                                <label class="custom-control-label font-weight-bold text-danger" for="confirmarDesativacao">
+                                    Eu entendo que esta ação irá desativar minha conta e todos os meus anúncios
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="motivo" class="font-weight-bold">
+                                <i class="fas fa-comment"></i> Motivo da desativação (opcional)
+                            </label>
+                            <textarea class="form-control" id="motivo" name="motivo" rows="3" 
+                                      placeholder="Nos ajude a melhorar: conte-nos o motivo da desativação da conta"></textarea>
+                            <small class="form-text text-muted">
+                                Sua opinião é importante para nós
+                            </small>
+                        </div>
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-danger btn-block" id="btnDesativar">
+                                    <i class="fas fa-user-times"></i> Confirmar Desativação
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ url_for('perfil') }}" class="btn btn-secondary btn-block">
+                                    <i class="fas fa-arrow-left"></i> Voltar ao Perfil
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="mt-4 p-3 bg-info text-white rounded">
+                        <h6>
+                            <i class="fas fa-info-circle"></i> Precisa de ajuda?
+                        </h6>
+                        <p class="mb-0">
+                            Se você está enfrentando algum problema ou tem dúvidas sobre o sistema, 
+                            entre em contato com nosso suporte antes de desativar sua conta.
+                        </p>
+                        <div class="mt-2">
+                            <small>
+                                <i class="fas fa-envelope"></i> suporte@ecommerce.com |
+                                <i class="fas fa-phone"></i> (11) 9999-9999
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('desativarForm');
+    const btnDesativar = document.getElementById('btnDesativar');
+    const checkbox = document.getElementById('confirmarDesativacao');
+    const senhaInput = document.getElementById('senha_confirmacao');
+    
+    // Controlar o estado do botão
+    function verificarFormulario() {
+        const senhaPreenchida = senhaInput.value.length >= 6;
+        const checkboxMarcado = checkbox.checked;
+        
+        btnDesativar.disabled = !(senhaPreenchida && checkboxMarcado);
+    }
+    
+    checkbox.addEventListener('change', verificarFormulario);
+    senhaInput.addEventListener('input', verificarFormulario);
+    
+    // Verificação inicial
+    verificarFormulario();
+    
+    // Confirmação adicional antes do envio
+    form.addEventListener('submit', function(e) {
+        const confirmacao = confirm(
+            'ATENÇÃO: Você tem certeza de que deseja desativar sua conta?\n\n' +
+            'Esta ação irá:\n' +
+            '• Desativar sua conta\n' +
+            '• Desativar todos os seus anúncios\n' +
+            '• Impedir novos logins\n\n' +
+            'Clique em "OK" para confirmar ou "Cancelar" para voltar.'
+        );
+        
+        if (!confirmacao) {
+            e.preventDefault();
+            return false;
+        }
+        
+        // Mostrar loading no botão
+        btnDesativar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Desativando...';
+        btnDesativar.disabled = true;
+    });
+    
+    // Animação de destaque no checkbox
+    checkbox.addEventListener('change', function() {
+        if (this.checked) {
+            this.parentElement.classList.add('animate__animated', 'animate__pulse');
+            setTimeout(() => {
+                this.parentElement.classList.remove('animate__animated', 'animate__pulse');
+            }, 1000);
+        }
+    });
+});
+</script>
+
+<style>
+.border-danger {
+    border: 2px solid #e3342f !important;
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.alert-danger {
+    border: none;
+    border-radius: 10px;
+}
+
+.bg-info {
+    background-color: #17a2b8 !important;
+    border-radius: 10px;
+}
+
+.card {
+    transition: all 0.3s;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.animate__pulse {
+    animation: pulse 1s;
+}
+</style>
+{% endblock %}

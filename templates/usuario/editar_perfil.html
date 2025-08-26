@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Perfil - E-commerce{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit"></i> Editar Perfil
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('editar_perfil') }}">
+                        <div class="row">
+                            <div class="col-md-12 text-center mb-4">
+                                <div class="profile-avatar">
+                                    <i class="fas fa-user-circle fa-4x text-secondary"></i>
+                                </div>
+                                <h6 class="text-muted">{{ usuario.email }}</h6>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nome" class="font-weight-bold">
+                                <i class="fas fa-user"></i> Nome Completo *
+                            </label>
+                            <input type="text" class="form-control" id="nome" name="nome" 
+                                   value="{{ usuario.nome }}" required maxlength="100"
+                                   placeholder="Digite seu nome completo">
+                            <small class="form-text text-muted">
+                                Nome que será exibido nos seus anúncios e perfil
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telefone" class="font-weight-bold">
+                                <i class="fas fa-phone"></i> Telefone
+                            </label>
+                            <input type="tel" class="form-control" id="telefone" name="telefone" 
+                                   value="{{ usuario.telefone if usuario.telefone else '' }}" 
+                                   maxlength="20" placeholder="(11) 99999-9999">
+                            <small class="form-text text-muted">
+                                Telefone para contato com compradores e vendedores
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="endereco" class="font-weight-bold">
+                                <i class="fas fa-map-marker-alt"></i> Endereço
+                            </label>
+                            <textarea class="form-control" id="endereco" name="endereco" rows="3" 
+                                      placeholder="Digite seu endereço completo (Rua, número, bairro, cidade, CEP)">{{ usuario.endereco if usuario.endereco else '' }}</textarea>
+                            <small class="form-text text-muted">
+                                Endereço para entregas e retiradas (opcional)
+                            </small>
+                        </div>
+
+                        <hr>
+
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-key"></i> Alterar Senha
+                        </h5>
+
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Opcional:</strong> Preencha apenas se desejar alterar sua senha atual.
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nova_senha" class="font-weight-bold">
+                                <i class="fas fa-lock"></i> Nova Senha
+                            </label>
+                            <input type="password" class="form-control" id="nova_senha" name="nova_senha" 
+                                   minlength="6" placeholder="Digite a nova senha (mínimo 6 caracteres)">
+                            <small class="form-text text-muted">
+                                Deixe em branco para manter a senha atual
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmar_senha" class="font-weight-bold">
+                                <i class="fas fa-lock"></i> Confirmar Nova Senha
+                            </label>
+                            <input type="password" class="form-control" id="confirmar_senha" 
+                                   name="confirmar_senha" placeholder="Digite novamente a nova senha">
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-primary btn-block">
+                                        <i class="fas fa-save"></i> Salvar Alterações
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="{{ url_for('perfil') }}" class="btn btn-secondary btn-block">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title text-muted">
+                                        <i class="fas fa-info-circle"></i> Informações da Conta
+                                    </h6>
+                                    <p class="card-text small">
+                                        <strong>Email:</strong> {{ usuario.email }}<br>
+                                        <strong>Membro desde:</strong> {{ usuario.data_cadastro|datetime('%d/%m/%Y às %H:%M') }}<br>
+                                        <strong>Status:</strong> 
+                                        {% if usuario.ativo %}
+                                            <span class="badge badge-success">Conta Ativa</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Conta Inativa</span>
+                                        {% endif %}
+                                    </p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-shield-alt"></i>
+                                        Para alterar seu email, entre em contato com o suporte.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('desativar_conta') }}" class="btn btn-outline-danger">
+                    <i class="fas fa-user-times"></i> Desativar Minha Conta
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const novaSenha = document.getElementById('nova_senha');
+    const confirmarSenha = document.getElementById('confirmar_senha');
+    
+    // Validação de confirmação de senha
+    function validarSenhas() {
+        if (novaSenha.value !== confirmarSenha.value) {
+            confirmarSenha.setCustomValidity('As senhas não coincidem');
+        } else {
+            confirmarSenha.setCustomValidity('');
+        }
+    }
+    
+    novaSenha.addEventListener('input', validarSenhas);
+    confirmarSenha.addEventListener('input', validarSenhas);
+    
+    // Máscara para telefone
+    const telefone = document.getElementById('telefone');
+    telefone.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length <= 11) {
+            value = value.replace(/(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{4,5})(\d{4})$/, '$1-$2');
+        }
+        e.target.value = value;
+    });
+    
+    // Validação do formulário
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const novaSenhaValue = novaSenha.value;
+        const confirmarSenhaValue = confirmarSenha.value;
+        
+        // Se uma senha foi digitada, ambas devem ser preenchidas e iguais
+        if (novaSenhaValue || confirmarSenhaValue) {
+            if (!novaSenhaValue) {
+                e.preventDefault();
+                alert('Digite a nova senha');
+                novaSenha.focus();
+                return;
+            }
+            
+            if (!confirmarSenhaValue) {
+                e.preventDefault();
+                alert('Confirme a nova senha');
+                confirmarSenha.focus();
+                return;
+            }
+            
+            if (novaSenhaValue !== confirmarSenhaValue) {
+                e.preventDefault();
+                alert('As senhas não coincidem');
+                confirmarSenha.focus();
+                return;
+            }
+            
+            if (novaSenhaValue.length < 6) {
+                e.preventDefault();
+                alert('A senha deve ter pelo menos 6 caracteres');
+                novaSenha.focus();
+                return;
+            }
+        }
+    });
+});
+</script>
+
+<style>
+.profile-avatar {
+    margin-bottom: 1rem;
+}
+
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.card {
+    transition: all 0.3s;
+}
+
+.alert {
+    border: none;
+    border-radius: 10px;
+}
+</style>
+{% endblock %}
